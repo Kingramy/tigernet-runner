@@ -1,0 +1,19 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Never store proprietary weights, engine clones, or private state
+*.pth
+*.jsonl
+*.npz
+_engine/
+_state/
+checkpoints/
+
+# Virtual environments & IDEs
+.env
+.venv
+env/
+venv/
+.vscode/
+.idea/

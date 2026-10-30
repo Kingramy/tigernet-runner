@@ -1,0 +1,189 @@
+name: Tigernet Algeria Live Surveillance
+
+on:
+  # Temporarily disabled for initial deployment safety.
+  # Re-enable after verifying the first successful manual production run.
+  # schedule:
+  #   # Run every 15 minutes to synchronize with EUMETSAT MSG-15 RSS scanning intervals
+  #   - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_mode:
+        description: 'Execution mode override (once / test)'
+        required: false
+        default: 'once'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: tigernet-surveillance
+  cancel-in-progress: false
+
+jobs:
+  surveillance:
+    name: Run Satellite Surveillance Cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Public Runner Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate Secrets Configuration
+        run: |
+          MISSING=""
+          if [ -z "${{ secrets.TIGERNET_PRIVATE_TOKEN }}" ]; then
+            MISSING="${MISSING} TIGERNET_PRIVATE_TOKEN"
+          fi
+          if [ -z "${{ secrets.TIGERNET_STATE_TOKEN }}" ]; then
+            MISSING="${MISSING} TIGERNET_STATE_TOKEN"
+          fi
+          if [ -z "${{ secrets.EUMETSAT_CONSUMER_KEY }}" ]; then
+            MISSING="${MISSING} EUMETSAT_CONSUMER_KEY"
+          fi
+          if [ -z "${{ secrets.EUMETSAT_CONSUMER_SECRET }}" ]; then
+            MISSING="${MISSING} EUMETSAT_CONSUMER_SECRET"
+          fi
+          
+          if [ -n "${MISSING}" ]; then
+            echo "::error::Missing required repository secrets:${MISSING}."
+            echo "Please configure the missing secrets in Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "All required secret references are securely present."
+
+      - name: Securely Retrieve Private Inference Engine
+        env:
+          PRIVATE_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
+        run: |
+          echo "Fetching private Tigernet engine from repository..."
+          git clone --depth 1 "https://x-access-token:${PRIVATE_TOKEN}@github.com/Kingramy/tigernet.git" _engine
+          mkdir -p _engine/checkpoints
+
+      - name: Install Runtime Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r _engine/requirements.txt
+
+      - name: Fetch Private Production Model Checkpoints (model-v1)
+        env:
+          GH_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
+        run: |
+          echo "Downloading production checkpoints from private release 'model-v1'..."
+          gh release download model-v1 \
+            --repo "Kingramy/tigernet" \
+            --pattern "best_unet_night_800.pth" \
+            --pattern "best_unet_day_800.pth" \
+            --dir _engine/checkpoints
+
+      - name: Retrieve Private Persistent Operational State
+        env:
+          STATE_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
+        run: |
+          echo "Retrieving operational state from private tigernet:runtime-state..."
+          mkdir -p _state
+          if git clone --depth 1 --branch runtime-state "https://x-access-token:${STATE_TOKEN}@github.com/Kingramy/tigernet.git" _state 2>/dev/null; then
+            echo "Successfully retrieved existing runtime-state branch."
+          else
+            echo "runtime-state branch not found. Seeding initial operational state from engine package..."
+            if [ -d "_engine/live_alerts" ]; then
+              cp -r _engine/live_alerts/* _state/
+            fi
+          fi
+
+      - name: Execute Operational Surveillance Cycle
+        env:
+          EUMETSAT_CONSUMER_KEY: ${{ secrets.EUMETSAT_CONSUMER_KEY }}
+          EUMETSAT_CONSUMER_SECRET: ${{ secrets.EUMETSAT_CONSUMER_SECRET }}
+        run: |
+          python _engine/worker.py \
+            --mode once \
+            --checkpoints-dir _engine/checkpoints \
+            --state-dir _state \
+            --web-data-dir web/data
+
+      - name: Persist Updated Private Operational State
+        env:
+          STATE_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
+        run: |
+          echo "Persisting updated operational state to private tigernet:runtime-state..."
+          cd _state
+          git config user.name "Tigernet State Bot"
+          git config user.email "state-bot@tigernet.internal"
+          
+          if [ -d ".git" ]; then
+            git add -A
+            if git diff --staged --quiet; then
+              echo "No operational state changes to commit."
+            else
+              git commit -m "chore(state): update operational telemetry [skip ci]"
+              git push origin runtime-state
+            fi
+          else
+            git init
+            git config user.name "Tigernet State Bot"
+            git config user.email "state-bot@tigernet.internal"
+            git checkout -b runtime-state
+            git remote add origin "https://x-access-token:${STATE_TOKEN}@github.com/Kingramy/tigernet.git"
+            git add -A
+            git commit -m "chore(state): initialize operational state branch [skip ci]"
+            git push -u origin runtime-state
+          fi
+          cd ..
+
+      - name: Strict Privacy Cleanup (Purge Engine, State & Checkpoints)
+        if: always()
+        run: |
+          echo "Sanitizing runner workspace: purging private source code, private state, and model weights..."
+          rm -rf _engine _state
+          find . -name "*.pth" -type f -delete
+          find . -name "*.jsonl" -type f -delete
+          find . -name "*.npz" -type f -delete
+          find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+          echo "Workspace sanitized. Proprietary IP and operational logs remain strictly protected."
+
+      - name: Commit and Push Public Web Observation Updates
+        run: |
+          git config user.name "Tigernet Surveillance Bot"
+          git config user.email "surveillance-bot@tigernet.internal"
+          
+          # Stage ONLY sanitized public web map data
+          git add web/data/fires.geojson web/data/latest_status.json
+          
+          if git diff --staged --quiet; then
+            echo "No public web data changes to commit."
+          else
+            git commit -m "chore(telemetry): update live wildfire observations [skip ci]"
+            git push origin HEAD:${{ github.ref }}
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: 'web'
+
+  deploy:
+    name: Deploy Live Map to GitHub Pages
+    needs: surveillance
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
