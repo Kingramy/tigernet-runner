@@ -845,8 +845,8 @@
       const cycleAgeMinutes = (now.getTime() - lastUpdated.getTime()) / (60 * 1000);
       const sensingAgeMinutes = sensingTime ? (now.getTime() - sensingTime.getTime()) / (60 * 1000) : Infinity;
 
-      const isCycleRecent = cycleAgeMinutes <= 15;
-      isSensingFresh = isCycleRecent && (sensingAgeMinutes <= 15);
+      const isCycleRecent = cycleAgeMinutes <= 20;
+      isSensingFresh = isCycleRecent && (sensingAgeMinutes <= 25);
 
       const regimeStr = statusData.active_regime && statusData.active_regime !== 'UNKNOWN'
         ? `${statusData.active_regime} REGIME`
@@ -968,7 +968,7 @@
                 <i class="fa-solid fa-satellite" style="color: var(--accent-warning);"></i>
                 <div class="empty-title">No Fresh Satellite Image</div>
                 <div class="empty-desc">
-                  Surveillance cycle completed, but no fresh satellite observation (&le;15 min) was available.<br><br>
+                  Surveillance cycle completed, but no fresh satellite observation (&le;25 min) was available.<br><br>
                   Last processed satellite image:<br><strong>${lastImgTime}</strong><br><br>
                   Historical detection records remain accessible in <strong>History Records</strong>.
                 </div>
