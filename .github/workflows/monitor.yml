@@ -7,16 +7,9 @@ on:
   #   # Run every 15 minutes to synchronize with EUMETSAT MSG-15 RSS scanning intervals
   #   - cron: '*/15 * * * *'
   workflow_dispatch:
-    inputs:
-      force_mode:
-        description: 'Execution mode override (once / test)'
-        required: false
-        default: 'once'
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: tigernet-surveillance
@@ -27,6 +20,8 @@ jobs:
     name: Run Satellite Surveillance Cycle
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Public Runner Repository
@@ -38,18 +33,23 @@ jobs:
           python-version: '3.11'
 
       - name: Validate Secrets Configuration
+        env:
+          TIGERNET_PRIVATE_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
+          TIGERNET_STATE_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
+          EUMETSAT_CONSUMER_KEY: ${{ secrets.EUMETSAT_CONSUMER_KEY }}
+          EUMETSAT_CONSUMER_SECRET: ${{ secrets.EUMETSAT_CONSUMER_SECRET }}
         run: |
           MISSING=""
-          if [ -z "${{ secrets.TIGERNET_PRIVATE_TOKEN }}" ]; then
+          if [ -z "$TIGERNET_PRIVATE_TOKEN" ]; then
             MISSING="${MISSING} TIGERNET_PRIVATE_TOKEN"
           fi
-          if [ -z "${{ secrets.TIGERNET_STATE_TOKEN }}" ]; then
+          if [ -z "$TIGERNET_STATE_TOKEN" ]; then
             MISSING="${MISSING} TIGERNET_STATE_TOKEN"
           fi
-          if [ -z "${{ secrets.EUMETSAT_CONSUMER_KEY }}" ]; then
+          if [ -z "$EUMETSAT_CONSUMER_KEY" ]; then
             MISSING="${MISSING} EUMETSAT_CONSUMER_KEY"
           fi
-          if [ -z "${{ secrets.EUMETSAT_CONSUMER_SECRET }}" ]; then
+          if [ -z "$EUMETSAT_CONSUMER_SECRET" ]; then
             MISSING="${MISSING} EUMETSAT_CONSUMER_SECRET"
           fi
           
@@ -90,13 +90,28 @@ jobs:
         run: |
           echo "Retrieving operational state from private tigernet:runtime-state..."
           mkdir -p _state
-          if git clone --depth 1 --branch runtime-state "https://x-access-token:${STATE_TOKEN}@github.com/Kingramy/tigernet.git" _state 2>/dev/null; then
-            echo "Successfully retrieved existing runtime-state branch."
-          else
-            echo "runtime-state branch not found. Seeding initial operational state from engine package..."
-            if [ -d "_engine/live_alerts" ]; then
-              cp -r _engine/live_alerts/* _state/
+          STATE_REPO="https://x-access-token:${STATE_TOKEN}@github.com/Kingramy/tigernet.git"
+
+          echo "Checking remote branch existence on Kingramy/tigernet..."
+          if REF_OUTPUT=$(git ls-remote --heads "$STATE_REPO" refs/heads/runtime-state 2>&1); then
+            if [ -n "$REF_OUTPUT" ]; then
+              echo "Remote branch 'runtime-state' found. Cloning operational state..."
+              if ! git clone --depth 1 --branch runtime-state "$STATE_REPO" _state; then
+                echo "::error::Failed to clone existing 'runtime-state' branch."
+                exit 1
+              fi
+              echo "Successfully retrieved existing runtime-state branch."
+            else
+              echo "Remote branch 'runtime-state' does not exist. Seeding initial operational state from engine package..."
+              if [ -d "_engine/live_alerts" ]; then
+                cp -r _engine/live_alerts/* _state/
+              fi
             fi
+          else
+            EXIT_CODE=$?
+            echo "::error::Failed to access private repository Kingramy/tigernet (git exit code: ${EXIT_CODE})."
+            echo "::error::Please verify that TIGERNET_STATE_TOKEN is valid, unexpired, and has Contents: Read & write access to Kingramy/tigernet."
+            exit 1
           fi
 
       - name: Execute Operational Surveillance Cycle

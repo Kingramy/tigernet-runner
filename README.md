@@ -54,7 +54,7 @@ Automated surveillance is designed to synchronize every 15 minutes with EUMETSAT
 1. **Trigger First Manual Production Run**:
    - Navigate to the **Actions** tab in `tigernet-runner`.
    - Select **Tigernet Algeria Live Surveillance**.
-   - Click **Run workflow** (branch: `main`, mode: `once`).
+   - Click **Run workflow** (branch: `main`).
 2. **Verify Execution Integrity**:
    - Validate that secrets authenticate without error.
    - Validate that the private engine and model checkpoints (`model-v1`) download into `_engine`.
