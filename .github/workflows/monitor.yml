@@ -22,10 +22,13 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
+      pages: read
 
     steps:
       - name: Checkout Public Runner Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python Runtime
         uses: actions/setup-python@v5
@@ -62,12 +65,11 @@ jobs:
 
       - name: Securely Retrieve Private Inference Engine
         env:
-          PRIVATE_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
+          GH_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
         run: |
           echo "Fetching private Tigernet engine from repository..."
-          AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PRIVATE_TOKEN" | base64 -w0)"
-          git -c http.extraheader="$AUTH_HEADER" clone --depth 1 "https://github.com/Kingramy/tigernet.git" _engine
-          unset AUTH_HEADER
+          gh api repos/Kingramy/tigernet --jq '.full_name'
+          git -c credential.helper='!gh auth git-credential' clone --depth 1 "https://github.com/Kingramy/tigernet.git" _engine
           mkdir -p _engine/checkpoints
 
       - name: Install Runtime Dependencies
@@ -88,20 +90,18 @@ jobs:
 
       - name: Retrieve Private Persistent Operational State
         env:
-          STATE_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
+          GH_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
         run: |
           echo "Retrieving operational state from private tigernet:runtime-state..."
           mkdir -p _state
           STATE_REPO="https://github.com/Kingramy/tigernet.git"
-          STATE_AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$STATE_TOKEN" | base64 -w0)"
 
           echo "Checking remote branch existence on Kingramy/tigernet..."
-          if REF_OUTPUT=$(git -c http.extraheader="$STATE_AUTH_HEADER" ls-remote --heads "$STATE_REPO" refs/heads/runtime-state 2>&1); then
+          if REF_OUTPUT=$(git -c credential.helper='!gh auth git-credential' ls-remote --heads "$STATE_REPO" refs/heads/runtime-state 2>&1); then
             if [ -n "$REF_OUTPUT" ]; then
               echo "Remote branch 'runtime-state' found. Cloning operational state..."
-              if ! git -c http.extraheader="$STATE_AUTH_HEADER" clone --depth 1 --branch runtime-state "$STATE_REPO" _state; then
+              if ! git -c credential.helper='!gh auth git-credential' clone --depth 1 --branch runtime-state "$STATE_REPO" _state; then
                 echo "::error::Failed to clone existing 'runtime-state' branch."
-                unset STATE_AUTH_HEADER
                 exit 1
               fi
               echo "Successfully retrieved existing runtime-state branch."
@@ -111,10 +111,8 @@ jobs:
                 cp -r _engine/live_alerts/* _state/
               fi
             fi
-            unset STATE_AUTH_HEADER
           else
             EXIT_CODE=$?
-            unset STATE_AUTH_HEADER
             echo "::error::Failed to access private repository Kingramy/tigernet (git exit code: ${EXIT_CODE})."
             echo "::error::Please verify that TIGERNET_STATE_TOKEN is valid, unexpired, and has Contents: Read & write access to Kingramy/tigernet."
             exit 1
@@ -133,10 +131,9 @@ jobs:
 
       - name: Persist Updated Private Operational State
         env:
-          STATE_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
+          GH_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
         run: |
           echo "Persisting updated operational state to private tigernet:runtime-state..."
-          STATE_AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$STATE_TOKEN" | base64 -w0)"
           cd _state
           git config user.name "Tigernet State Bot"
           git config user.email "state-bot@tigernet.internal"
@@ -148,7 +145,7 @@ jobs:
               echo "No operational state changes to commit."
             else
               git commit -m "chore(state): update operational telemetry [skip ci]"
-              git -c http.extraheader="$STATE_AUTH_HEADER" push origin runtime-state
+              git -c credential.helper='!gh auth git-credential' push origin runtime-state
             fi
           else
             git init
@@ -158,10 +155,9 @@ jobs:
             git remote add origin "https://github.com/Kingramy/tigernet.git"
             git add -A
             git commit -m "chore(state): initialize operational state branch [skip ci]"
-            git -c http.extraheader="$STATE_AUTH_HEADER" push -u origin runtime-state
+            git -c credential.helper='!gh auth git-credential' push -u origin runtime-state
           fi
           cd ..
-          unset STATE_AUTH_HEADER
 
       - name: Strict Privacy Cleanup (Purge Engine, State & Checkpoints)
         if: always()
@@ -175,6 +171,8 @@ jobs:
           echo "Workspace sanitized. Proprietary IP and operational logs remain strictly protected."
 
       - name: Commit and Push Public Web Observation Updates
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "Tigernet Surveillance Bot"
           git config user.email "surveillance-bot@tigernet.internal"
@@ -186,7 +184,7 @@ jobs:
             echo "No public web data changes to commit."
           else
             git commit -m "chore(telemetry): update live wildfire observations [skip ci]"
-            git push origin HEAD:${{ github.ref }}
+            git -c credential.helper='!gh auth git-credential' push origin HEAD:${{ github.ref }}
           fi
 
       - name: Configure GitHub Pages
