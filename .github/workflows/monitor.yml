@@ -1,11 +1,8 @@
 name: Tigernet Algeria Live Surveillance
 
 on:
-  # Temporarily disabled for initial deployment safety.
-  # Re-enable after verifying the first successful manual production run.
-  # schedule:
-  #   # Run every 15 minutes to synchronize with EUMETSAT MSG-15 RSS scanning intervals
-  #   - cron: '*/15 * * * *'
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:

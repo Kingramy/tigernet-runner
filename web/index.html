@@ -46,11 +46,13 @@
       background: rgba(18, 24, 36, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 1000;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .brand {
@@ -96,28 +98,62 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .telemetry-pill {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
+    .telemetry-pill strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .cadence-pill {
+      border-color: rgba(6, 182, 212, 0.4);
+      background: rgba(6, 182, 212, 0.08);
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    /* Status Dot States */
+    .status-dot {
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.neutral {
+      background: #64748b;
+      box-shadow: none;
+    }
+
+    .status-dot.online {
       background: var(--accent-emerald);
-      box-shadow: 0 0 8px var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
       animation: pulse 2s infinite;
+    }
+
+    .status-dot.stale {
+      background: var(--accent-warning);
+      box-shadow: 0 0 10px var(--accent-warning);
+    }
+
+    .status-dot.error {
+      background: var(--accent-critical);
+      box-shadow: 0 0 10px var(--accent-critical);
     }
 
     @keyframes pulse {
@@ -136,7 +172,7 @@
 
     /* Sidebar Feed & Controls */
     .sidebar {
-      width: 380px;
+      width: 400px;
       background: var(--bg-card);
       border-right: 1px solid var(--border-color);
       display: flex;
@@ -146,7 +182,7 @@
     }
 
     .sidebar-stats {
-      padding: 16px;
+      padding: 14px 16px;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
@@ -157,19 +193,20 @@
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px 12px;
     }
 
     .stat-label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 600;
       margin-bottom: 4px;
+      letter-spacing: 0.03em;
     }
 
     .stat-value {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
     }
@@ -178,6 +215,93 @@
     .stat-value.flame { color: var(--accent-flame); }
     .stat-value.cyan { color: var(--accent-cyan); }
     .stat-value.emerald { color: var(--accent-emerald); }
+
+    /* Verification Advisory Banner */
+    .verification-advisory {
+      margin: 12px 16px 0 16px;
+      padding: 10px 12px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .advisory-icon {
+      color: var(--accent-warning);
+      font-size: 0.95rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .advisory-text {
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .advisory-text strong {
+      color: #fcd34d;
+    }
+
+    /* View Switcher */
+    .view-switcher-container {
+      padding: 12px 16px 0 16px;
+    }
+
+    .view-switcher {
+      display: flex;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .view-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .view-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .view-btn.active {
+      background: var(--accent-flame);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(255, 94, 20, 0.35);
+    }
+
+    .view-count-badge {
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .view-btn.active .view-count-badge {
+      background: rgba(0, 0, 0, 0.25);
+      color: #ffffff;
+    }
 
     .sidebar-controls {
       padding: 12px 16px;
@@ -194,8 +318,9 @@
       padding: 8px 12px;
       border-radius: 6px;
       color: var(--text-main);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       outline: none;
+      font-family: inherit;
     }
     .search-input:focus { border-color: var(--accent-flame); }
 
@@ -211,10 +336,11 @@
       padding: 6px 8px;
       border-radius: 6px;
       color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      font-family: inherit;
     }
     .filter-btn.active, .filter-btn:hover {
       background: var(--accent-flame);
@@ -270,18 +396,80 @@
     }
 
     .incident-directive {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: #f87171;
       margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    .incident-meta {
+    .incident-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 8px;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+    }
+
+    .detail-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .detail-row .lbl {
       color: var(--text-muted);
+    }
+
+    .detail-row .val {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .candidate-tag {
+      margin-top: 6px;
+      font-size: 0.65rem;
+      color: #f59e0b;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Empty / Status States */
+    .empty-state {
+      padding: 36px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-state i {
+      font-size: 2.2rem;
+      margin-bottom: 6px;
+    }
+
+    .empty-state.info i { color: var(--accent-emerald); }
+    .empty-state.error i { color: var(--accent-critical); }
+    .empty-state.neutral i { color: var(--text-muted); }
+
+    .empty-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .empty-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      max-width: 290px;
+      line-height: 1.45;
     }
 
     /* Map Area */
@@ -321,25 +509,6 @@
     .map-btn:hover { background: var(--bg-card-hover); }
     .map-btn.active { border-color: var(--accent-cyan); color: var(--accent-cyan); }
 
-    /* Custom Leaflet Markers */
-    .marker-fire {
-      width: 14px;
-      height: 14px;
-      background: var(--accent-flame);
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 0 10px var(--accent-flame);
-    }
-    .marker-nascent {
-      width: 18px;
-      height: 18px;
-      background: var(--accent-critical);
-      border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 15px var(--accent-critical);
-      animation: pulse 1.2s infinite;
-    }
-
     /* Custom Popup Styles */
     .leaflet-popup-content-wrapper {
       background: var(--bg-card);
@@ -351,8 +520,19 @@
     }
     .leaflet-popup-tip { background: var(--bg-card); }
     .popup-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-    .popup-directive { font-size: 0.75rem; font-weight: 700; color: #f87171; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
-    .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; }
+    .popup-directive { font-size: 0.75rem; font-weight: 700; color: #f87171; margin-bottom: 6px; }
+    .popup-candidate-notice {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #f59e0b;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.74rem; font-family: 'JetBrains Mono', monospace; }
     .popup-item { color: var(--text-muted); }
     .popup-item span { color: var(--text-main); font-weight: 600; }
   </style>
@@ -368,18 +548,26 @@
           TIGERNET ALGERIA
           <span class="brand-badge">Operational AI</span>
         </div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">Meteosat MSG SEVIRI Dual-Regime Wildfire Surveillance System</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted);">Meteosat MSG SEVIRI 5-Minute RSS Scans &bull; Dual-Regime Surveillance</div>
       </div>
     </div>
 
     <div class="header-actions">
-      <div class="telemetry-pill">
-        <div class="pulse-dot"></div>
-        <span id="telemetry-status">SATELLITE ACTIVE (15-MIN RSS)</span>
+      <div class="telemetry-pill cadence-pill" title="Meteosat Rapid Scanning Service Cadence">
+        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan);"></i>
+        <span>5-MIN RSS SCANS</span>
       </div>
-      <div class="telemetry-pill">
+      <div class="telemetry-pill" id="telemetry-pill" title="Surveillance Runner Telemetry Status">
+        <div class="status-dot neutral" id="status-dot"></div>
+        <span id="telemetry-status">CHECKING TELEMETRY...</span>
+      </div>
+      <div class="telemetry-pill" title="Timestamp of the last completed surveillance execution cycle">
+        <i class="fa-solid fa-arrows-rotate" style="color: var(--accent-emerald);"></i>
+        <span>Last Cycle: <strong id="cycle-timestamp">--:-- UTC</strong></span>
+      </div>
+      <div class="telemetry-pill" title="Observation sensing timestamp of the processed satellite frame">
         <i class="fa-regular fa-clock" style="color: var(--accent-cyan);"></i>
-        <span id="latest-timestamp">2026-09-23 14:10 UTC</span>
+        <span>Satellite Sensing: <strong id="sensing-timestamp">--:-- UTC</strong></span>
       </div>
     </div>
   </header>
@@ -387,18 +575,18 @@
   <!-- Main Container -->
   <div class="dashboard-container">
     
-    <!-- Sidebar: Live Incidents & Stats -->
+    <!-- Sidebar: Incidents & Controls -->
     <div class="sidebar">
       
       <!-- KPI Stats -->
       <div class="sidebar-stats">
         <div class="stat-card">
-          <div class="stat-label">Total Incidents</div>
-          <div class="stat-value flame" id="stat-total">4,221</div>
+          <div class="stat-label">Historical Detection Records</div>
+          <div class="stat-value flame" id="stat-historical">--</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Critical Nascent</div>
-          <div class="stat-value critical" id="stat-nascent">64</div>
+          <div class="stat-label">AI Candidate Detections</div>
+          <div class="stat-value critical" id="stat-candidates">--</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Industrial Sites</div>
@@ -410,9 +598,31 @@
         </div>
       </div>
 
-      <!-- Controls -->
+      <!-- Advisory Banner -->
+      <div class="verification-advisory">
+        <i class="fa-solid fa-triangle-exclamation advisory-icon"></i>
+        <div class="advisory-text">
+          <strong>Candidate Detections Only:</strong> Inferences are automated AI model detections derived from Meteosat SEVIRI radiometry. Ground verification is recommended before operational action.
+        </div>
+      </div>
+
+      <!-- View Switcher -->
+      <div class="view-switcher-container">
+        <div class="view-switcher">
+          <button class="view-btn active" id="btn-view-latest" title="Show only detections from the latest processed satellite observation">
+            <i class="fa-solid fa-satellite-dish"></i> Latest Observation
+            <span class="view-count-badge" id="badge-latest">--</span>
+          </button>
+          <button class="view-btn" id="btn-view-history" title="Show all historical detection records">
+            <i class="fa-solid fa-clock-rotate-left"></i> History Records
+            <span class="view-count-badge" id="badge-history">--</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
       <div class="sidebar-controls">
-        <input type="text" id="search-input" class="search-input" placeholder="Search by Incident ID, Lat, Lon..." />
+        <input type="text" id="search-input" class="search-input" placeholder="Search by Candidate ID, Classification, Lat, Lon..." />
         <div class="filter-tabs">
           <button class="filter-btn active" data-filter="all">All</button>
           <button class="filter-btn" data-filter="nascent">Nascent</button>
@@ -423,7 +633,11 @@
 
       <!-- Incident Feed -->
       <div class="incident-feed" id="incident-feed">
-        <!-- Incidents populated dynamically -->
+        <div class="empty-state neutral">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <div class="empty-title">Loading Observations...</div>
+          <div class="empty-desc">Connecting to operational satellite data endpoints.</div>
+        </div>
       </div>
     </div>
 
@@ -524,54 +738,169 @@
     });
     map.addLayer(markersCluster);
 
-    let allIncidents = [];
+    // State Variables
+    let allHistoricalFeatures = [];
+    let latestObservationFeatures = [];
+    let currentView = 'latest'; // 'latest' or 'history'
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let isSensingFresh = false;
+    let latestSensingDate = null;
     const markerLookup = new Map();
 
-    // Fetch and render wildfire incidents from GeoJSON & live telemetry status
-    async function loadIncidents() {
-      try {
-        const res = await fetch('data/fires.geojson');
-        if (!res.ok) throw new Error('Data endpoint not reachable');
-        const geojson = await res.json();
-        processGeoJSON(geojson);
-      } catch (err) {
-        console.warn('Could not load data/fires.geojson directly (likely local file:// protocol), using embedded fallback state.');
-        renderEmbeddedSample();
+    // Timestamp & Directive Helpers
+    function parseUtcDate(dateStr) {
+      if (!dateStr) return null;
+      let s = String(dateStr).trim();
+      if (!s.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(s)) {
+        s += 'Z';
+      }
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatUtcTimestamp(dateInput) {
+      if (!dateInput) return '--:-- UTC';
+      const d = typeof dateInput === 'string' ? parseUtcDate(dateInput) : dateInput;
+      if (!d || isNaN(d.getTime())) return String(dateInput);
+      const yr = d.getUTCFullYear();
+      const mo = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const da = String(d.getUTCDate()).padStart(2, '0');
+      const hr = String(d.getUTCHours()).padStart(2, '0');
+      const mi = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${yr}-${mo}-${da} ${hr}:${mi} UTC`;
+    }
+
+    function formatDirective(directive) {
+      if (!directive) return 'GROUND VERIFICATION RECOMMENDED';
+      return String(directive)
+        .replace(/GROUND UNIT INTERVENTION/gi, 'GROUND VERIFICATION RECOMMENDED')
+        .replace(/GROUND INTERVENTION/gi, 'GROUND VERIFICATION RECOMMENDED');
+    }
+
+    // Partition observations into latest vs historical
+    function partitionObservations(incidents, statusData) {
+      if (!incidents || incidents.length === 0) {
+        return { latestFeatures: [], latestTime: null };
       }
 
-      try {
-        const resStatus = await fetch('data/latest_status.json');
-        if (resStatus.ok) {
-          const status = await resStatus.json();
-          if (status.latest_sensing_time) {
-            document.getElementById('latest-timestamp').innerText = status.latest_sensing_time.replace('T', ' ').substring(0, 16) + ' UTC';
-          }
-          if (status.active_regime && status.active_regime !== 'UNKNOWN') {
-            document.getElementById('telemetry-status').innerText = `SATELLITE ACTIVE (${status.active_regime} REGIME)`;
-          }
-        }
-      } catch (e) {
-        // Non-blocking status enhancement
+      // If satellite sensing is not fresh (>15 min), never display old detections as latest scan
+      if (!isSensingFresh || !latestSensingDate) {
+        return {
+          latestFeatures: [],
+          latestTime: latestSensingDate ? latestSensingDate.toISOString() : null
+        };
+      }
+
+      // Sensing timestamp is sufficiently recent (<= 15 min): find detections matching this fresh observation
+      const sensingUtcMs = latestSensingDate.getTime();
+      const matchingFeatures = incidents.filter(i => {
+        const d = parseUtcDate(i.timestamp);
+        return d && Math.abs(d.getTime() - sensingUtcMs) <= 120000;
+      });
+
+      return {
+        latestFeatures: matchingFeatures,
+        latestTime: statusData?.latest_sensing_time || (matchingFeatures[0]?.timestamp)
+      };
+    }
+
+    // Update telemetry status indicators based on statusData
+    function updateTelemetryStatus(statusData) {
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('telemetry-status');
+      const cycleTimeEl = document.getElementById('cycle-timestamp');
+      const sensingTimeEl = document.getElementById('sensing-timestamp');
+
+      if (!statusData || !statusData.last_updated_utc) {
+        statusDot.className = 'status-dot error';
+        statusText.innerText = 'DATA UNAVAILABLE';
+        cycleTimeEl.innerText = '--:-- UTC';
+        sensingTimeEl.innerText = '--:-- UTC';
+        isSensingFresh = false;
+        latestSensingDate = null;
+        return;
+      }
+
+      const lastUpdated = parseUtcDate(statusData.last_updated_utc);
+      if (!lastUpdated) {
+        statusDot.className = 'status-dot error';
+        statusText.innerText = 'INVALID TELEMETRY TIMESTAMP';
+        isSensingFresh = false;
+        latestSensingDate = null;
+        return;
+      }
+
+      cycleTimeEl.innerText = formatUtcTimestamp(lastUpdated);
+
+      const sensingTime = parseUtcDate(statusData.latest_sensing_time);
+      latestSensingDate = sensingTime;
+      if (sensingTime) {
+        sensingTimeEl.innerText = formatUtcTimestamp(sensingTime);
+      } else {
+        sensingTimeEl.innerText = '--:-- UTC';
+      }
+
+      const now = new Date();
+      const cycleAgeMinutes = (now.getTime() - lastUpdated.getTime()) / (60 * 1000);
+      const sensingAgeMinutes = sensingTime ? (now.getTime() - sensingTime.getTime()) / (60 * 1000) : Infinity;
+
+      const isCycleRecent = cycleAgeMinutes <= 15;
+      isSensingFresh = isCycleRecent && (sensingAgeMinutes <= 15);
+
+      const regimeStr = statusData.active_regime && statusData.active_regime !== 'UNKNOWN'
+        ? `${statusData.active_regime} REGIME`
+        : 'SURVEILLANCE';
+
+      // Telemetry Status Evaluation using both timestamps:
+      // 1. Worker cycle completed >15 min ago -> Stale runner execution
+      if (!isCycleRecent) {
+        statusDot.className = 'status-dot stale';
+        statusText.innerText = `STALE: NO RECENT CHECK (${Math.round(cycleAgeMinutes)}M AGO)`;
+      }
+      // 2. Worker cycle completed <=15 min ago, but satellite observation is older than 15 min
+      else if (!isSensingFresh) {
+        statusDot.className = 'status-dot stale';
+        statusText.innerText = 'CYCLE SUCCESSFUL — NO FRESH IMAGE';
+      }
+      // 3. Both worker cycle and satellite observation are fresh (<=15 min)
+      else {
+        statusDot.className = 'status-dot online';
+        statusText.innerText = `CYCLE SUCCESSFUL (${regimeStr})`;
+      }
+
+      if (statusData.total_historical_incidents !== undefined) {
+        document.getElementById('stat-historical').innerText = Number(statusData.total_historical_incidents).toLocaleString();
       }
     }
 
-    function processGeoJSON(geojson) {
-      allIncidents = geojson.features.map(f => f.properties);
-      
-      // Update Stats
-      document.getElementById('stat-total').innerText = allIncidents.length.toLocaleString();
-      const nascentCount = allIncidents.filter(i => (i.classification || '').includes('NASCENT')).length;
-      document.getElementById('stat-nascent').innerText = nascentCount;
+    // Filter incidents according to active view, filter button, and search text
+    function getVisibleIncidents() {
+      let list = (currentView === 'latest') ? latestObservationFeatures : allHistoricalFeatures;
 
-      if (allIncidents.length > 0) {
-        const last = allIncidents[allIncidents.length - 1];
-        document.getElementById('latest-timestamp').innerText = last.timestamp.replace('T', ' ').substring(0, 16) + ' UTC';
+      if (currentFilter === 'nascent') {
+        list = list.filter(i => (i.classification || '').includes('NASCENT'));
+      } else if (currentFilter === 'major') {
+        list = list.filter(i => (i.classification || '').includes('MAJOR'));
+      } else if (currentFilter === 'active') {
+        list = list.filter(i => (i.classification || '').includes('ACTIVE'));
       }
 
-      renderMarkers(allIncidents);
-      renderFeed(allIncidents.slice(-100).reverse());
+      if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        list = list.filter(i =>
+          (i.incident_id || '').toLowerCase().includes(q) ||
+          (i.classification || '').toLowerCase().includes(q) ||
+          (i.directive || '').toLowerCase().includes(q) ||
+          String(i.latitude || '').includes(q) ||
+          String(i.longitude || '').includes(q)
+        );
+      }
+
+      return list;
     }
 
+    // Render Markers on Map
     function renderMarkers(incidents) {
       markersCluster.clearLayers();
       markerLookup.clear();
@@ -585,7 +914,14 @@
         if (isNascent) { markerColor = '#ef4444'; radius = 8; }
         else if (isMajor) { markerColor = '#dc2626'; radius = 7; }
 
-        const marker = L.circleMarker([inc.latitude || inc.coordinates?.[1] || 36.5, inc.longitude || inc.coordinates?.[0] || 4.5], {
+        const lat = inc.latitude ?? inc.coordinates?.[1] ?? 36.5;
+        const lon = inc.longitude ?? inc.coordinates?.[0] ?? 4.5;
+        const t39 = inc.peak_t39_K ?? inc.peak_brightness_temp_39_K ?? 0;
+        const area = inc.estimated_area_km2 ?? 9.0;
+        const score = inc.confidence ?? 1.0;
+        const directive = formatDirective(inc.directive);
+
+        const marker = L.circleMarker([lat, lon], {
           radius: radius,
           fillColor: markerColor,
           color: '#ffffff',
@@ -597,16 +933,19 @@
         const popupContent = `
           <div class="popup-title">
             <i class="fa-solid fa-triangle-exclamation" style="color: ${markerColor};"></i>
-            ${inc.incident_id}
+            ${inc.incident_id || 'Candidate Alert'}
           </div>
-          <div class="popup-directive">${inc.directive || 'GROUND INTERVENTION'}</div>
+          <div class="popup-directive">${directive}</div>
+          <div class="popup-candidate-notice">
+            <i class="fa-solid fa-circle-exclamation"></i> AI Candidate &bull; Ground Verification Recommended
+          </div>
           <div class="popup-grid">
-            <div class="popup-item">Classification: <br><span>${inc.classification}</span></div>
-            <div class="popup-item">Regime: <br><span>${inc.regime}</span></div>
-            <div class="popup-item">Peak T3.9: <br><span>${inc.peak_t39_K || inc.peak_brightness_temp_39_K || 0} K</span></div>
-            <div class="popup-item">Rate of Rise: <br><span>+${inc.rate_of_rise_K_5min || inc.rate_of_rise_K_per_5min || 0} K/5m</span></div>
-            <div class="popup-item">Front Area: <br><span>${inc.estimated_area_km2 || 9} km²</span></div>
-            <div class="popup-item">Confidence: <br><span>${Math.round((inc.confidence || 1.0) * 100)}%</span></div>
+            <div class="popup-item">Classification:<br><span>${inc.classification || 'UNCLASSIFIED'}</span></div>
+            <div class="popup-item">Location:<br><span>${Number(lat).toFixed(4)}°N, ${Number(lon).toFixed(4)}°E</span></div>
+            <div class="popup-item">IR_039 BT:<br><span>${Number(t39).toFixed(1)} K</span></div>
+            <div class="popup-item">Front Area:<br><span>${Number(area).toFixed(1)} km²</span></div>
+            <div class="popup-item">Model Score:<br><span>${(Number(score) * 100).toFixed(1)}% (${Number(score).toFixed(3)})</span></div>
+            <div class="popup-item">Regime:<br><span>${inc.regime || 'AUTO'}</span></div>
           </div>
         `;
         marker.bindPopup(popupContent);
@@ -615,35 +954,85 @@
       });
     }
 
+    // Render Incident Feed Cards
     function renderFeed(incidents) {
       const feed = document.getElementById('incident-feed');
       feed.innerHTML = '';
 
-      incidents.forEach(inc => {
+      if (incidents.length === 0) {
+        if (currentView === 'latest') {
+          if (!isSensingFresh) {
+            const lastImgTime = latestSensingDate ? formatUtcTimestamp(latestSensingDate) : '--:-- UTC';
+            feed.innerHTML = `
+              <div class="empty-state neutral">
+                <i class="fa-solid fa-satellite" style="color: var(--accent-warning);"></i>
+                <div class="empty-title">No Fresh Satellite Image</div>
+                <div class="empty-desc">
+                  Surveillance cycle completed, but no fresh satellite observation (&le;15 min) was available.<br><br>
+                  Last processed satellite image:<br><strong>${lastImgTime}</strong><br><br>
+                  Historical detection records remain accessible in <strong>History Records</strong>.
+                </div>
+              </div>
+            `;
+          } else {
+            const sensingStr = latestSensingDate ? ` (${formatUtcTimestamp(latestSensingDate)})` : '';
+            feed.innerHTML = `
+              <div class="empty-state info">
+                <i class="fa-solid fa-shield-check"></i>
+                <div class="empty-title">Domain Clear</div>
+                <div class="empty-desc">Fresh satellite observation${sensingStr} processed successfully. Zero active wildfire candidates detected in domain.</div>
+              </div>
+            `;
+          }
+        } else {
+          feed.innerHTML = `
+            <div class="empty-state neutral">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <div class="empty-title">No Matching Records</div>
+              <div class="empty-desc">No detection records match the current filter criteria or search query.</div>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // Display detections (latest observation shows all, history view shows most recent 100)
+      const displayList = (currentView === 'latest') ? incidents : incidents.slice(-100).reverse();
+
+      displayList.forEach(inc => {
         const isNascent = (inc.classification || '').includes('NASCENT');
         const isMajor = (inc.classification || '').includes('MAJOR');
         let badgeClass = 'badge-active';
         if (isNascent) badgeClass = 'badge-nascent';
         else if (isMajor) badgeClass = 'badge-major';
 
+        const lat = inc.latitude ?? inc.coordinates?.[1] ?? 36.5;
+        const lon = inc.longitude ?? inc.coordinates?.[0] ?? 4.5;
+        const t39 = inc.peak_t39_K ?? inc.peak_brightness_temp_39_K ?? 0;
+        const area = inc.estimated_area_km2 ?? 9.0;
+        const score = inc.confidence ?? 1.0;
+        const directive = formatDirective(inc.directive);
+
         const item = document.createElement('div');
         item.className = 'incident-item';
         item.innerHTML = `
           <div class="incident-header">
-            <span class="incident-badge ${badgeClass}">${inc.classification}</span>
-            <span class="incident-time">${(inc.timestamp || '').substring(11, 16)} UTC</span>
+            <span class="incident-badge ${badgeClass}">${inc.classification || 'CANDIDATE'}</span>
+            <span class="incident-time">${formatUtcTimestamp(inc.timestamp)}</span>
           </div>
-          <div class="incident-directive">${inc.directive || 'GROUND INTERVENTION'}</div>
-          <div class="incident-meta">
-            <span>ID: ${inc.incident_id}</span>
-            <span>Area: ${inc.estimated_area_km2 || 9} km²</span>
-            <span>T3.9: ${inc.peak_t39_K || inc.peak_brightness_temp_39_K || 0} K</span>
+          <div class="incident-directive">${directive}</div>
+          <div class="incident-details-grid">
+            <div class="detail-row"><span class="lbl">Location:</span> <span class="val">${Number(lat).toFixed(4)}°N, ${Number(lon).toFixed(4)}°E</span></div>
+            <div class="detail-row"><span class="lbl">IR_039 BT:</span> <span class="val">${Number(t39).toFixed(1)} K</span></div>
+            <div class="detail-row"><span class="lbl">Front Area:</span> <span class="val">${Number(area).toFixed(1)} km²</span></div>
+            <div class="detail-row"><span class="lbl">Model Score:</span> <span class="val">${(Number(score) * 100).toFixed(1)}%</span></div>
+          </div>
+          <div class="candidate-tag">
+            <i class="fa-solid fa-circle-exclamation"></i> AI Candidate Detections — Ground Verification Recommended
           </div>
         `;
 
         item.addEventListener('click', () => {
-          const lat = inc.latitude || inc.coordinates?.[1];
-          const lon = inc.longitude || inc.coordinates?.[0];
           map.flyTo([lat, lon], 11, { duration: 1.2 });
           const marker = markerLookup.get(inc.incident_id);
           if (marker) {
@@ -655,32 +1044,149 @@
       });
     }
 
-    // Search and filter listeners
+    // Refresh Active View
+    function renderView() {
+      const visible = getVisibleIncidents();
+      document.getElementById('stat-candidates').innerText = visible.length.toLocaleString();
+      renderMarkers(visible);
+      renderFeed(visible);
+    }
+
+    // Display Data Unavailable (Never display embedded synthetic sample data)
+    function showDataUnavailable(errorMsg) {
+      markersCluster.clearLayers();
+      markerLookup.clear();
+      isSensingFresh = false;
+      latestSensingDate = null;
+
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('telemetry-status');
+      statusDot.className = 'status-dot error';
+      statusText.innerText = 'DATA UNAVAILABLE';
+
+      document.getElementById('stat-candidates').innerText = '--';
+      document.getElementById('stat-historical').innerText = '--';
+      document.getElementById('badge-latest').innerText = '--';
+      document.getElementById('badge-history').innerText = '--';
+
+      const feed = document.getElementById('incident-feed');
+      feed.innerHTML = `
+        <div class="empty-state error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div class="empty-title">Surveillance Data Unavailable</div>
+          <div class="empty-desc">
+            Unable to load operational observations or telemetry from runner storage. Detections cannot be displayed.
+          </div>
+        </div>
+      `;
+    }
+
+    // Fetch and render wildfire incidents from GeoJSON & telemetry status
+    async function loadData() {
+      const cacheBuster = `?_t=${Date.now()}`;
+      let statusData = null;
+
+      try {
+        const resStatus = await fetch(`data/latest_status.json${cacheBuster}`, { cache: 'no-store' });
+        if (resStatus.ok) {
+          statusData = await resStatus.json();
+        }
+      } catch (e) {
+        console.warn('Status telemetry fetch warning:', e);
+      }
+
+      try {
+        const resGeo = await fetch(`data/fires.geojson${cacheBuster}`, { cache: 'no-store' });
+        if (!resGeo.ok) {
+          throw new Error(`HTTP ${resGeo.status} ${resGeo.statusText}`);
+        }
+        const geojson = await resGeo.json();
+        if (!geojson || !geojson.features) {
+          throw new Error('Malformed GeoJSON payload');
+        }
+
+        // Update telemetry status
+        updateTelemetryStatus(statusData);
+
+        // Normalize features
+        allHistoricalFeatures = geojson.features.map(f => {
+          const coords = f.geometry?.coordinates || [0, 0];
+          return {
+            ...f.properties,
+            longitude: coords[0],
+            latitude: coords[1],
+            coordinates: coords
+          };
+        });
+
+        // Partition observations
+        const obsInfo = partitionObservations(allHistoricalFeatures, statusData);
+        latestObservationFeatures = obsInfo.latestFeatures;
+
+        // Update badges
+        document.getElementById('badge-latest').innerText = latestObservationFeatures.length.toLocaleString();
+        document.getElementById('badge-history').innerText = allHistoricalFeatures.length.toLocaleString();
+
+        if (!statusData || statusData.total_historical_incidents === undefined) {
+          document.getElementById('stat-historical').innerText = allHistoricalFeatures.length.toLocaleString();
+        }
+
+        if (!statusData?.latest_sensing_time && obsInfo.latestTime) {
+          document.getElementById('sensing-timestamp').innerText = formatUtcTimestamp(obsInfo.latestTime);
+        }
+
+        // Render current view
+        renderView();
+
+      } catch (err) {
+        console.error('Surveillance data acquisition error:', err);
+        showDataUnavailable(err.message);
+      }
+    }
+
+    // View Switcher Listeners
+    document.getElementById('btn-view-latest').addEventListener('click', function() {
+      currentView = 'latest';
+      this.classList.add('active');
+      document.getElementById('btn-view-history').classList.remove('active');
+      renderView();
+
+      if (latestObservationFeatures.length > 0) {
+        const lats = latestObservationFeatures.map(i => i.latitude).filter(Boolean);
+        const lons = latestObservationFeatures.map(i => i.longitude).filter(Boolean);
+        if (lats.length === 1) {
+          map.flyTo([lats[0], lons[0]], 10, { duration: 1.0 });
+        } else if (lats.length > 1) {
+          const bounds = L.latLngBounds(latestObservationFeatures.map(i => [i.latitude, i.longitude]));
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 11 });
+        }
+      }
+    });
+
+    document.getElementById('btn-view-history').addEventListener('click', function() {
+      currentView = 'history';
+      this.classList.add('active');
+      document.getElementById('btn-view-latest').classList.remove('active');
+      renderView();
+    });
+
+    // Filter Buttons Listener
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        let filtered = allIncidents;
-        if (filter === 'nascent') filtered = allIncidents.filter(i => (i.classification || '').includes('NASCENT'));
-        else if (filter === 'major') filtered = allIncidents.filter(i => (i.classification || '').includes('MAJOR'));
-        else if (filter === 'active') filtered = allIncidents.filter(i => (i.classification || '').includes('ACTIVE'));
-        renderMarkers(filtered);
-        renderFeed(filtered.slice(-100).reverse());
+        currentFilter = btn.dataset.filter;
+        renderView();
       });
     });
 
+    // Search Input Listener
     document.getElementById('search-input').addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      const filtered = allIncidents.filter(i => 
-        (i.incident_id || '').toLowerCase().includes(q) ||
-        (i.directive || '').toLowerCase().includes(q) ||
-        (i.classification || '').toLowerCase().includes(q)
-      );
-      renderFeed(filtered.slice(-100).reverse());
+      currentSearch = e.target.value.trim();
+      renderView();
     });
 
-    // Layer Toggles
+    // Map Layer Toggles
     let satelliteActive = false;
     document.getElementById('toggle-satellite').addEventListener('click', function() {
       satelliteActive = !satelliteActive;
@@ -710,21 +1216,11 @@
       else map.removeLayer(domainRect);
     });
 
-    // Fallback if local file protocol without server
-    function renderEmbeddedSample() {
-      const sample = [
-        { incident_id: "INC_20260923_1410_01", timestamp: "2026-09-23T14:10:00", classification: "NASCENT_IGNITION_CRITICAL", directive: "IMMEDIATE EVACUATION & AIR TANKER DISPATCH", latitude: 36.75, longitude: 5.25, estimated_area_km2: 9.0, peak_t39_K: 328.4, rate_of_rise_K_5min: 3.2, regime: "DAY" },
-        { incident_id: "INC_20260923_1410_02", timestamp: "2026-09-23T14:10:00", classification: "MAJOR_EXPANDING_WILDFIRE", directive: "REGIONAL PERIMETER CONTAINMENT", latitude: 36.85, longitude: 6.90, estimated_area_km2: 72.0, peak_t39_K: 335.2, rate_of_rise_K_5min: 1.8, regime: "DAY" },
-        { incident_id: "INC_20260923_1405_01", timestamp: "2026-09-23T14:05:00", classification: "ACTIVE_FLAMING_FRONT", directive: "GROUND UNIT INTERVENTION", latitude: 36.42, longitude: 4.10, estimated_area_km2: 18.0, peak_t39_K: 312.0, rate_of_rise_K_5min: 0.6, regime: "DAY" }
-      ];
-      allIncidents = sample;
-      renderMarkers(sample);
-      renderFeed(sample);
-    }
+    // Initial data load on startup
+    loadData();
 
-    // Auto-load on startup
-    loadIncidents();
+    // 60-Second Auto-Refresh using cache-busting requests
+    setInterval(loadData, 60000);
   </script>
 </body>
 </html>
-
