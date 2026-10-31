@@ -68,8 +68,9 @@ jobs:
           GH_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
         run: |
           echo "Fetching private Tigernet engine from repository..."
-          gh api repos/Kingramy/tigernet --jq '.full_name'
-          git -c credential.helper='!gh auth git-credential' clone --depth 1 "https://github.com/Kingramy/tigernet.git" _engine
+          gh api repos/Kingramy/tigernet/contents --jq 'length' > /dev/null
+          gh auth setup-git --hostname github.com --force
+          git clone --depth 1 https://github.com/Kingramy/tigernet.git _engine
           mkdir -p _engine/checkpoints
 
       - name: Install Runtime Dependencies
@@ -95,12 +96,13 @@ jobs:
           echo "Retrieving operational state from private tigernet:runtime-state..."
           mkdir -p _state
           STATE_REPO="https://github.com/Kingramy/tigernet.git"
+          gh auth setup-git --hostname github.com --force
 
           echo "Checking remote branch existence on Kingramy/tigernet..."
-          if REF_OUTPUT=$(git -c credential.helper='!gh auth git-credential' ls-remote --heads "$STATE_REPO" refs/heads/runtime-state 2>&1); then
+          if REF_OUTPUT=$(git ls-remote --heads "$STATE_REPO" refs/heads/runtime-state 2>&1); then
             if [ -n "$REF_OUTPUT" ]; then
               echo "Remote branch 'runtime-state' found. Cloning operational state..."
-              if ! git -c credential.helper='!gh auth git-credential' clone --depth 1 --branch runtime-state "$STATE_REPO" _state; then
+              if ! git clone --depth 1 --branch runtime-state "$STATE_REPO" _state; then
                 echo "::error::Failed to clone existing 'runtime-state' branch."
                 exit 1
               fi
@@ -134,6 +136,7 @@ jobs:
           GH_TOKEN: ${{ secrets.TIGERNET_STATE_TOKEN }}
         run: |
           echo "Persisting updated operational state to private tigernet:runtime-state..."
+          gh auth setup-git --hostname github.com --force
           cd _state
           git config user.name "Tigernet State Bot"
           git config user.email "state-bot@tigernet.internal"
@@ -145,7 +148,7 @@ jobs:
               echo "No operational state changes to commit."
             else
               git commit -m "chore(state): update operational telemetry [skip ci]"
-              git -c credential.helper='!gh auth git-credential' push origin runtime-state
+              git push origin runtime-state
             fi
           else
             git init
@@ -155,7 +158,7 @@ jobs:
             git remote add origin "https://github.com/Kingramy/tigernet.git"
             git add -A
             git commit -m "chore(state): initialize operational state branch [skip ci]"
-            git -c credential.helper='!gh auth git-credential' push -u origin runtime-state
+            git push -u origin runtime-state
           fi
           cd ..
 
@@ -184,7 +187,8 @@ jobs:
             echo "No public web data changes to commit."
           else
             git commit -m "chore(telemetry): update live wildfire observations [skip ci]"
-            git -c credential.helper='!gh auth git-credential' push origin HEAD:${{ github.ref }}
+            gh auth setup-git --hostname github.com --force
+            git push origin HEAD:${{ github.ref }}
           fi
 
       - name: Configure GitHub Pages
