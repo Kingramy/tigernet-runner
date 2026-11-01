@@ -12,15 +12,15 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: tigernet-surveillance
-  cancel-in-progress: false
 
 jobs:
   surveillance:
     name: Run Satellite Surveillance Cycle
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    concurrency:
+      group: tigernet-surveillance-cycle
+      cancel-in-progress: false
     permissions:
       contents: write
       pages: read
@@ -209,8 +209,8 @@ jobs:
         run: |
           CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
           echo "Previous surveillance cycle completed."
-          echo "Entering 10-minute standby to maintain continuous satellite pass interval..."
-          sleep 600
+          echo "Entering 2-minute standby to match true 5-minute satellite pass cadence..."
+          sleep 120
           echo "Dispatching next surveillance cycle..."
           GH_TOKEN="$CLEAN_TOKEN" gh workflow run monitor.yml --repo Kingramy/tigernet-runner --ref main || \
           curl -f -s -X POST \
