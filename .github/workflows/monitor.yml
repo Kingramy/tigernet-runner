@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: tigernet-surveillance
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   surveillance:
@@ -182,6 +182,27 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
+      - name: Purge Completed Workflow Runs from History
+        env:
+          RAW_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
+        run: |
+          CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
+          echo "Purging previous completed workflow runs to keep Actions history clean..."
+          CURRENT_RUN_ID="${{ github.run_id }}"
+          GH_TOKEN="$CLEAN_TOKEN" gh run list \
+            --workflow=monitor.yml \
+            --repo Kingramy/tigernet-runner \
+            --status=completed \
+            --limit=30 \
+            --json databaseId \
+            -q '.[].databaseId' | while read -r old_id; do
+              if [ -n "$old_id" ] && [ "$old_id" != "$CURRENT_RUN_ID" ]; then
+                echo "Deleting old run: $old_id"
+                GH_TOKEN="$CLEAN_TOKEN" gh run delete "$old_id" --repo Kingramy/tigernet-runner || true
+              fi
+          done
+          echo "Completed runs history purged successfully."
+
       - name: Delay and Dispatch Next Surveillance Cycle
         env:
           RAW_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
@@ -198,3 +219,4 @@ jobs:
             https://api.github.com/repos/Kingramy/tigernet-runner/actions/workflows/monitor.yml/dispatches \
             -d '{"ref":"main"}' || \
           echo "Notice: Chaining dispatch completed or handled by fallback triggers."
+          sleep 5
