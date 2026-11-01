@@ -1052,6 +1052,56 @@
       renderFeed(visible);
     }
 
+    // Robust URL resolution for relative data endpoints (handles missing trailing slash and subpath variants)
+    function resolveDataUrl(relativePath) {
+      const loc = window.location;
+      let dir = loc.pathname || '/';
+      if (!dir.endsWith('/')) {
+        if (/\.[a-zA-Z0-9]+$/.test(dir)) {
+          dir = dir.substring(0, dir.lastIndexOf('/') + 1);
+        } else {
+          dir = dir + '/';
+        }
+      }
+      return loc.origin + dir + relativePath;
+    }
+
+    // Resilient data fetcher with path fallbacks and automatic retry
+    async function fetchWithFallback(relativePath) {
+      const cacheBuster = `?_t=${Date.now()}`;
+      const loc = window.location;
+      
+      const candidateUrls = [
+        resolveDataUrl(relativePath) + cacheBuster,
+        `${relativePath}${cacheBuster}`,
+        `./${relativePath}${cacheBuster}`
+      ];
+
+      // If hosted on github.io and path didn't include the repository subpath
+      if (loc.hostname.endsWith('github.io') && !loc.pathname.includes('/tigernet-runner')) {
+        candidateUrls.push(`${loc.origin}/tigernet-runner/${relativePath}${cacheBuster}`);
+      }
+
+      const uniqueUrls = [...new Set(candidateUrls)];
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        for (const url of uniqueUrls) {
+          try {
+            const res = await fetch(url, { cache: 'no-store' });
+            if (res && res.ok) {
+              return res;
+            }
+          } catch (e) {
+            // try next candidate
+          }
+        }
+        if (attempt === 0) {
+          await new Promise(r => setTimeout(r, 1200));
+        }
+      }
+      throw new Error(`Unable to fetch ${relativePath} from any storage endpoint`);
+    }
+
     // Display Data Unavailable (Never display embedded synthetic sample data)
     function showDataUnavailable(errorMsg) {
       markersCluster.clearLayers();
@@ -1061,34 +1111,43 @@
 
       const statusDot = document.getElementById('status-dot');
       const statusText = document.getElementById('telemetry-status');
-      statusDot.className = 'status-dot error';
-      statusText.innerText = 'DATA UNAVAILABLE';
+      if (statusDot) statusDot.className = 'status-dot error';
+      if (statusText) statusText.innerText = 'DATA UNAVAILABLE';
 
-      document.getElementById('stat-candidates').innerText = '--';
-      document.getElementById('stat-historical').innerText = '--';
-      document.getElementById('badge-latest').innerText = '--';
-      document.getElementById('badge-history').innerText = '--';
+      const statCand = document.getElementById('stat-candidates');
+      if (statCand) statCand.innerText = '--';
+      const statHist = document.getElementById('stat-historical');
+      if (statHist) statHist.innerText = '--';
+      const badgeLat = document.getElementById('badge-latest');
+      if (badgeLat) badgeLat.innerText = '--';
+      const badgeHist = document.getElementById('badge-history');
+      if (badgeHist) badgeHist.innerText = '--';
 
       const feed = document.getElementById('incident-feed');
-      feed.innerHTML = `
-        <div class="empty-state error">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <div class="empty-title">Surveillance Data Unavailable</div>
-          <div class="empty-desc">
-            Unable to load operational observations or telemetry from runner storage. Detections cannot be displayed.
+      if (feed) {
+        feed.innerHTML = `
+          <div class="empty-state error">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="empty-title">Surveillance Data Unavailable</div>
+            <div class="empty-desc">
+              Unable to load operational observations or telemetry from runner storage.<br>
+              <span style="font-size: 11px; opacity: 0.75; display: inline-block; margin-top: 6px;">Detail: ${errorMsg || 'Connection error'}</span>
+            </div>
+            <button onclick="loadData()" class="btn-retry" style="margin-top: 14px; padding: 7px 18px; background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(59, 130, 246, 0.6); color: #93c5fd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">
+              <i class="fa-solid fa-arrows-rotate"></i> Retry Connection
+            </button>
           </div>
-        </div>
-      `;
+        `;
+      }
     }
 
     // Fetch and render wildfire incidents from GeoJSON & telemetry status
     async function loadData() {
-      const cacheBuster = `?_t=${Date.now()}`;
       let statusData = null;
 
       try {
-        const resStatus = await fetch(`data/latest_status.json${cacheBuster}`, { cache: 'no-store' });
-        if (resStatus.ok) {
+        const resStatus = await fetchWithFallback('data/latest_status.json');
+        if (resStatus && resStatus.ok) {
           statusData = await resStatus.json();
         }
       } catch (e) {
@@ -1096,9 +1155,9 @@
       }
 
       try {
-        const resGeo = await fetch(`data/fires.geojson${cacheBuster}`, { cache: 'no-store' });
-        if (!resGeo.ok) {
-          throw new Error(`HTTP ${resGeo.status} ${resGeo.statusText}`);
+        const resGeo = await fetchWithFallback('data/fires.geojson');
+        if (!resGeo || !resGeo.ok) {
+          throw new Error(`HTTP ${resGeo ? resGeo.status : 'ERR'} loading fires.geojson`);
         }
         const geojson = await resGeo.json();
         if (!geojson || !geojson.features) {
@@ -1111,9 +1170,9 @@
         // Normalize features and enforce 10-day retention policy
         const tenDaysAgoMs = Date.now() - (10 * 24 * 60 * 60 * 1000);
         allHistoricalFeatures = (geojson.features || []).map(f => {
-          const coords = f.geometry?.coordinates || [0, 0];
+          const coords = f?.geometry?.coordinates || [0, 0];
           return {
-            ...f.properties,
+            ...(f?.properties || {}),
             longitude: coords[0],
             latitude: coords[1],
             coordinates: coords
@@ -1128,16 +1187,21 @@
         const obsInfo = partitionObservations(allHistoricalFeatures, statusData);
         latestObservationFeatures = obsInfo.latestFeatures;
 
-        // Update badges
-        document.getElementById('badge-latest').innerText = latestObservationFeatures.length.toLocaleString();
-        document.getElementById('badge-history').innerText = allHistoricalFeatures.length.toLocaleString();
+        // Update badges safely
+        const badgeLatest = document.getElementById('badge-latest');
+        if (badgeLatest) badgeLatest.innerText = latestObservationFeatures.length.toLocaleString();
 
-        if (!statusData || statusData.total_historical_incidents === undefined) {
-          document.getElementById('stat-historical').innerText = allHistoricalFeatures.length.toLocaleString();
+        const badgeHistory = document.getElementById('badge-history');
+        if (badgeHistory) badgeHistory.innerText = allHistoricalFeatures.length.toLocaleString();
+
+        const statHist = document.getElementById('stat-historical');
+        if (statHist && (!statusData || statusData.total_historical_incidents === undefined)) {
+          statHist.innerText = allHistoricalFeatures.length.toLocaleString();
         }
 
-        if (!statusData?.latest_sensing_time && obsInfo.latestTime) {
-          document.getElementById('sensing-timestamp').innerText = formatUtcTimestamp(obsInfo.latestTime);
+        const senseTimeEl = document.getElementById('sensing-timestamp');
+        if (senseTimeEl && !statusData?.latest_sensing_time && obsInfo.latestTime) {
+          senseTimeEl.innerText = formatUtcTimestamp(obsInfo.latestTime);
         }
 
         // Render current view
