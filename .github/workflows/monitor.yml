@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: tigernet-surveillance
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   surveillance:
@@ -180,7 +180,7 @@ jobs:
     name: Autonomous Surveillance Chaining
     needs: [surveillance]
     runs-on: ubuntu-latest
-    if: always()
+    if: success()
     steps:
       - name: Delay and Dispatch Next Surveillance Cycle
         env:
