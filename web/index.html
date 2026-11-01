@@ -646,13 +646,13 @@
 
     <!-- Floating Map Controls -->
     <div class="map-overlay-controls">
-      <button class="map-btn active" id="toggle-industrial">
+      <button class="map-btn" id="toggle-industrial">
         <i class="fa-solid fa-industry"></i> Industrial Suppression
       </button>
-      <button class="map-btn active" id="toggle-boundary">
+      <button class="map-btn" id="toggle-boundary">
         <i class="fa-regular fa-square"></i> Algeria Domain (34°-37.5°N)
       </button>
-      <button class="map-btn" id="toggle-satellite">
+      <button class="map-btn active" id="toggle-satellite">
         <i class="fa-solid fa-satellite"></i> Satellite Imagery
       </button>
     </div>
@@ -699,11 +699,11 @@
     // Tile Layers
     const darkTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; CartoDB &copy; OpenStreetMap'
-    }).addTo(map);
+    });
 
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: '&copy; Esri World Imagery'
-    });
+    }).addTo(map);
 
     // Surveillance Domain Boundary
     const domainBounds = [[34.0, -2.0], [37.5, 8.5]];
@@ -714,10 +714,10 @@
       fill: true,
       fillColor: '#06b6d4',
       fillOpacity: 0.03
-    }).addTo(map);
+    });
 
     // Industrial Exclusion Zones Layer Group
-    const industrialLayerGroup = L.layerGroup().addTo(map);
+    const industrialLayerGroup = L.layerGroup();
     KNOWN_INDUSTRIAL_SITES.forEach(site => {
       const circle = L.circle([site.lat, site.lon], {
         radius: site.radius_km * 1000,
@@ -1187,7 +1187,7 @@
     });
 
     // Map Layer Toggles
-    let satelliteActive = false;
+    let satelliteActive = true;
     document.getElementById('toggle-satellite').addEventListener('click', function() {
       satelliteActive = !satelliteActive;
       this.classList.toggle('active', satelliteActive);
@@ -1200,7 +1200,7 @@
       }
     });
 
-    let industrialActive = true;
+    let industrialActive = false;
     document.getElementById('toggle-industrial').addEventListener('click', function() {
       industrialActive = !industrialActive;
       this.classList.toggle('active', industrialActive);
@@ -1208,7 +1208,7 @@
       else map.removeLayer(industrialLayerGroup);
     });
 
-    let boundaryActive = true;
+    let boundaryActive = false;
     document.getElementById('toggle-boundary').addEventListener('click', function() {
       boundaryActive = !boundaryActive;
       this.classList.toggle('active', boundaryActive);
