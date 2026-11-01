@@ -123,7 +123,10 @@ jobs:
             echo "No operational state changes to commit."
           else
             git commit -m "chore(state): update operational telemetry [skip ci]"
-            git push origin runtime-state
+            for attempt in 1 2 3 4 5; do
+              git pull origin runtime-state --rebase || true
+              git push origin runtime-state && break || sleep 3
+            done
           fi
           cd ..
 
@@ -150,7 +153,10 @@ jobs:
             echo "No public web data changes to commit."
           else
             git commit -m "chore(telemetry): update live wildfire observations [skip ci]"
-            git push origin HEAD:${{ github.ref }}
+            for attempt in 1 2 3 4 5; do
+              git pull origin main --rebase || true
+              git push origin HEAD:main && break || sleep 3
+            done
           fi
 
       - name: Configure GitHub Pages
@@ -180,7 +186,7 @@ jobs:
     name: Autonomous Surveillance Chaining
     needs: [surveillance]
     runs-on: ubuntu-latest
-    if: success()
+    if: always() && !cancelled()
     steps:
       - name: Purge Completed Workflow Runs from History
         env:

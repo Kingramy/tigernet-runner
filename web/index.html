@@ -581,7 +581,7 @@
       <!-- KPI Stats -->
       <div class="sidebar-stats">
         <div class="stat-card">
-          <div class="stat-label">Historical Detection Records</div>
+          <div class="stat-label">Historical Records (10d)</div>
           <div class="stat-value flame" id="stat-historical">--</div>
         </div>
         <div class="stat-card">
@@ -613,8 +613,8 @@
             <i class="fa-solid fa-satellite-dish"></i> Latest Observation
             <span class="view-count-badge" id="badge-latest">--</span>
           </button>
-          <button class="view-btn" id="btn-view-history" title="Show all historical detection records">
-            <i class="fa-solid fa-clock-rotate-left"></i> History Records
+          <button class="view-btn" id="btn-view-history" title="Show historical detection records (last 10 days)">
+            <i class="fa-solid fa-clock-rotate-left"></i> History Records (10d)
             <span class="view-count-badge" id="badge-history">--</span>
           </button>
         </div>
@@ -1108,8 +1108,9 @@
         // Update telemetry status
         updateTelemetryStatus(statusData);
 
-        // Normalize features
-        allHistoricalFeatures = geojson.features.map(f => {
+        // Normalize features and enforce 10-day retention policy
+        const tenDaysAgoMs = Date.now() - (10 * 24 * 60 * 60 * 1000);
+        allHistoricalFeatures = (geojson.features || []).map(f => {
           const coords = f.geometry?.coordinates || [0, 0];
           return {
             ...f.properties,
@@ -1117,6 +1118,10 @@
             latitude: coords[1],
             coordinates: coords
           };
+        }).filter(item => {
+          if (!item.timestamp) return true;
+          const t = parseUtcDate(item.timestamp);
+          return !t || (t.getTime() >= tenDaysAgoMs);
         });
 
         // Partition observations
