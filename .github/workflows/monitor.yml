@@ -118,16 +118,24 @@ jobs:
           git config user.name "Tigernet State Bot"
           git config user.email "state-bot@tigernet.internal"
           
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No operational state changes to commit."
-          else
+          mkdir -p /tmp/state_backup
+          cp active_incidents.jsonl /tmp/state_backup/ 2>/dev/null || true
+          cp industrial_hotspots.jsonl /tmp/state_backup/ 2>/dev/null || true
+          cp temporal_state.npz /tmp/state_backup/ 2>/dev/null || true
+
+          for attempt in 1 2 3 4 5; do
+            git fetch origin runtime-state
+            git reset --hard origin/runtime-state
+            cp /tmp/state_backup/* . 2>/dev/null || true
+            git add -A
+            if git diff --staged --quiet; then
+              echo "No operational state changes to commit."
+              break
+            fi
             git commit -m "chore(state): update operational telemetry [skip ci]"
-            for attempt in 1 2 3 4 5; do
-              git pull origin runtime-state --rebase || true
-              git push origin runtime-state && break || sleep 3
-            done
-          fi
+            git push origin HEAD:runtime-state && break || sleep 3
+          done
+          rm -rf /tmp/state_backup
           cd ..
 
       - name: Strict Privacy Cleanup (Purge Engine, State & Checkpoints)
@@ -146,18 +154,24 @@ jobs:
           git config user.name "Tigernet Surveillance Bot"
           git config user.email "surveillance-bot@tigernet.internal"
           
-          # Stage ONLY sanitized public web map data
-          git add web/data/fires.geojson web/data/latest_status.json
+          mkdir -p /tmp/web_backup
+          cp web/data/fires.geojson /tmp/web_backup/
+          cp web/data/latest_status.json /tmp/web_backup/
           
-          if git diff --staged --quiet; then
-            echo "No public web data changes to commit."
-          else
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp /tmp/web_backup/fires.geojson web/data/fires.geojson
+            cp /tmp/web_backup/latest_status.json web/data/latest_status.json
+            git add web/data/fires.geojson web/data/latest_status.json
+            if git diff --staged --quiet; then
+              echo "No public web data changes to commit."
+              break
+            fi
             git commit -m "chore(telemetry): update live wildfire observations [skip ci]"
-            for attempt in 1 2 3 4 5; do
-              git pull origin main --rebase || true
-              git push origin HEAD:main && break || sleep 3
-            done
-          fi
+            git push origin HEAD:main && break || sleep 3
+          done
+          rm -rf /tmp/web_backup
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
