@@ -1,10 +1,10 @@
 {
   "status": "OPERATIONAL",
-  "last_updated_utc": "2026-11-03T23:11:53.515890+00:00",
-  "latest_sensing_time": "2026-11-03T22:45:08.867000",
+  "last_updated_utc": "2026-11-03T23:16:21.618549+00:00",
+  "latest_sensing_time": "2026-11-03T23:00:10.423000",
   "total_historical_incidents": 1019,
   "total_nascent_alerts": 3,
-  "active_regime": "STANDBY",
+  "active_regime": "NIGHT",
   "industrial_sites_monitored": 17,
   "coverage_domain": {
     "lat_bounds": [
