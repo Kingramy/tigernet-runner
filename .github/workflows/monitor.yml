@@ -5,22 +5,22 @@ on:
     branches:
       - main
   schedule:
-    # Use off-peak minute offsets (e.g., 7, 22, 37, 52) instead of */5
-    - cron: '7,22,37,52 * * * *'
+    # Watchdog fallback in case autonomous chaining stops
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: tigernet-runner-surveillance-pipeline
+  cancel-in-progress: false
 
 jobs:
   surveillance:
     name: Run Satellite Surveillance Cycle
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    concurrency:
-      group: tigernet-surveillance-cycle
-      cancel-in-progress: false
     permissions:
       contents: write
       pages: read
@@ -198,30 +198,45 @@ jobs:
 
   chain-cycle:
     name: Autonomous Surveillance Chaining
-    needs: [surveillance]
+    needs: [surveillance, deploy]
     runs-on: ubuntu-latest
     if: always() && !cancelled()
     steps:
-      - name: Purge Completed Workflow Runs from History
+      - name: Drain Queue and Purge Historical Runs
         env:
           RAW_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
         run: |
           CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
-          echo "Purging previous completed workflow runs to keep Actions history clean..."
           CURRENT_RUN_ID="${{ github.run_id }}"
+          
+          # Cancel any accumulated queued backlog runs to instantly drain the pipeline
+          echo "Draining excess queued runs..."
           GH_TOKEN="$CLEAN_TOKEN" gh run list \
             --workflow=monitor.yml \
             --repo Kingramy/tigernet-runner \
-            --status=completed \
-            --limit=30 \
+            --status=queued \
+            --limit=50 \
             --json databaseId \
-            -q '.[].databaseId' | while read -r old_id; do
-              if [ -n "$old_id" ] && [ "$old_id" != "$CURRENT_RUN_ID" ]; then
-                echo "Deleting old run: $old_id"
+            -q '.[].databaseId' | while read -r q_id; do
+              if [ -n "$q_id" ] && [ "$q_id" != "$CURRENT_RUN_ID" ]; then
+                echo "Cancelling excess queued run: $q_id"
+                GH_TOKEN="$CLEAN_TOKEN" gh run cancel "$q_id" --repo Kingramy/tigernet-runner || true
+              fi
+          done
+
+          echo "Purging old finished workflow runs to keep Actions history clean..."
+          GH_TOKEN="$CLEAN_TOKEN" gh run list \
+            --workflow=monitor.yml \
+            --repo Kingramy/tigernet-runner \
+            --limit=50 \
+            --json databaseId,status \
+            -q '.[] | select((.status == "completed" or .status == "cancelled") and .databaseId != '"$CURRENT_RUN_ID"') | .databaseId' | while read -r old_id; do
+              if [ -n "$old_id" ]; then
+                echo "Deleting finished run: $old_id"
                 GH_TOKEN="$CLEAN_TOKEN" gh run delete "$old_id" --repo Kingramy/tigernet-runner || true
               fi
           done
-          echo "Completed runs history purged successfully."
+          echo "Finished runs history purged successfully."
 
       - name: Delay and Dispatch Next Surveillance Cycle
         env:
@@ -229,14 +244,30 @@ jobs:
         run: |
           CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
           echo "Previous surveillance cycle completed."
-          echo "Entering 2-minute standby to match true 5-minute satellite pass cadence..."
-          sleep 120
-          echo "Dispatching next surveillance cycle..."
-          GH_TOKEN="$CLEAN_TOKEN" gh workflow run monitor.yml --repo Kingramy/tigernet-runner --ref main || \
-          curl -f -s -X POST \
-            -H "Authorization: Bearer $CLEAN_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/Kingramy/tigernet-runner/actions/workflows/monitor.yml/dispatches \
-            -d '{"ref":"main"}' || \
-          echo "Notice: Chaining dispatch completed or handled by fallback triggers."
+          
+          # Check if another run is already queued or waiting in the runner
+          echo "Checking runner queue status..."
+          QUEUED_RUNS=$(GH_TOKEN="$CLEAN_TOKEN" gh run list \
+            --workflow=monitor.yml \
+            --repo Kingramy/tigernet-runner \
+            --status=queued \
+            --limit=30 \
+            --json databaseId \
+            -q '.[].databaseId' || true)
+
+          if [ -n "$QUEUED_RUNS" ]; then
+            echo "A surveillance run is already queued in the runner ($QUEUED_RUNS)."
+            echo "Skipping self-dispatch to prevent runner pileup."
+          else
+            echo "Entering 2-minute standby to match true 5-minute satellite pass cadence..."
+            sleep 120
+            echo "Dispatching next autonomous surveillance cycle..."
+            GH_TOKEN="$CLEAN_TOKEN" gh workflow run monitor.yml --repo Kingramy/tigernet-runner --ref main || \
+            curl -f -s -X POST \
+              -H "Authorization: Bearer $CLEAN_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/Kingramy/tigernet-runner/actions/workflows/monitor.yml/dispatches \
+              -d '{"ref":"main"}' || \
+            echo "Notice: Chaining dispatch completed or handled by fallback triggers."
+          fi
           sleep 5
