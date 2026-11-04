@@ -13,14 +13,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: tigernet-runner-surveillance-pipeline
+  group: tigernet-surveillance-core
   cancel-in-progress: false
 
 jobs:
   surveillance:
     name: Run Satellite Surveillance Cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 8
     permissions:
       contents: write
       pages: read
@@ -181,28 +181,8 @@ jobs:
         with:
           path: 'web'
 
-  deploy:
-    name: Deploy Live Map to GitHub Pages
-    needs: surveillance
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-  chain-cycle:
-    name: Autonomous Surveillance Chaining
-    needs: [surveillance, deploy]
-    runs-on: ubuntu-latest
-    if: always() && !cancelled()
-    steps:
-      - name: Drain Queue and Purge Historical Runs
+      - name: Drain Excess Queue and Purge Historical Runs
+        if: always() && !cancelled()
         env:
           RAW_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
         run: |
@@ -238,12 +218,14 @@ jobs:
           done
           echo "Finished runs history purged successfully."
 
-      - name: Delay and Dispatch Next Surveillance Cycle
+      - name: Standby Cadence and Dispatch Next Surveillance Cycle
+        if: always() && !cancelled()
         env:
           RAW_TOKEN: ${{ secrets.TIGERNET_PRIVATE_TOKEN }}
         run: |
           CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
-          echo "Previous surveillance cycle completed."
+          CURRENT_RUN_ID="${{ github.run_id }}"
+          echo "Surveillance cycle completed."
           
           # Check if another run is already queued or waiting in the runner
           echo "Checking runner queue status..."
@@ -270,4 +252,24 @@ jobs:
               -d '{"ref":"main"}' || \
             echo "Notice: Chaining dispatch completed or handled by fallback triggers."
           fi
-          sleep 5
+          sleep 3
+
+  deploy:
+    name: Deploy Live Map to GitHub Pages
+    needs: surveillance
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    continue-on-error: true
+    concurrency:
+      group: tigernet-pages-deployment
+      cancel-in-progress: true
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
