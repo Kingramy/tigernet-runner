@@ -189,6 +189,21 @@ jobs:
           CLEAN_TOKEN=$(echo -n "$RAW_TOKEN" | tr -d '\r\n[:space:]' | sed -e 's/^Bearer//' -e 's/^token//')
           CURRENT_RUN_ID="${{ github.run_id }}"
           
+          # Cancel any stale in-progress runs from prior stalled cycles
+          echo "Cancelling any stale in-progress runs..."
+          GH_TOKEN="$CLEAN_TOKEN" gh run list \
+            --workflow=monitor.yml \
+            --repo Kingramy/tigernet-runner \
+            --status=in_progress \
+            --limit=20 \
+            --json databaseId \
+            -q '.[].databaseId' | while read -r r_id; do
+              if [ -n "$r_id" ] && [ "$r_id" != "$CURRENT_RUN_ID" ]; then
+                echo "Cancelling stale in-progress run: $r_id"
+                GH_TOKEN="$CLEAN_TOKEN" gh run cancel "$r_id" --repo Kingramy/tigernet-runner || true
+              fi
+          done
+
           # Cancel any accumulated queued backlog runs to instantly drain the pipeline
           echo "Draining excess queued runs..."
           GH_TOKEN="$CLEAN_TOKEN" gh run list \
