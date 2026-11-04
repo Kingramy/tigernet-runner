@@ -1072,6 +1072,7 @@
       const loc = window.location;
       
       const candidateUrls = [
+        `https://raw.githubusercontent.com/Kingramy/tigernet-runner/main/web/${relativePath}${cacheBuster}`,
         resolveDataUrl(relativePath) + cacheBuster,
         `${relativePath}${cacheBuster}`,
         `./${relativePath}${cacheBuster}`
