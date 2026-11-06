@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-06T03:40:38.099806+00:00",
-  "total_features": 1308,
+  "generated_at": "2026-11-06T03:45:36.586325+00:00",
+  "total_features": 1309,
   "features": [
     {
       "type": "Feature",
@@ -28777,6 +28777,28 @@
         "confidence": 0.951,
         "peak_t39_K": 285.3,
         "rate_of_rise_K_5min": 0.27
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.001,
+          34.0583
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261106_0340_01",
+        "timestamp": "2026-11-06T03:40:07.679000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 25.1,
+        "pixel_count": 2,
+        "confidence": 0.99,
+        "peak_t39_K": 285.3,
+        "rate_of_rise_K_5min": 0.05
       }
     }
   ]
