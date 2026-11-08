@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-08T03:06:12.153573+00:00",
-  "total_features": 2038,
+  "generated_at": "2026-11-08T03:10:49.378566+00:00",
+  "total_features": 2040,
   "features": [
     {
       "type": "Feature",
@@ -44836,6 +44836,50 @@
         "pixel_count": 2,
         "confidence": 0.98,
         "peak_t39_K": 285.5,
+        "rate_of_rise_K_5min": -0.16
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.951,
+          36.8146
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261108_0305_01",
+        "timestamp": "2026-11-08T03:05:09.532000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.997,
+        "peak_t39_K": 285.6,
+        "rate_of_rise_K_5min": 0.11
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.001,
+          34.0583
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261108_0305_02",
+        "timestamp": "2026-11-08T03:05:09.532000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 25.1,
+        "pixel_count": 2,
+        "confidence": 0.98,
+        "peak_t39_K": 285.3,
         "rate_of_rise_K_5min": -0.16
       }
     }
