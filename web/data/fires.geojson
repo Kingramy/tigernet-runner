@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-09T11:14:15.273723+00:00",
-  "total_features": 4370,
+  "generated_at": "2026-11-09T11:18:36.984152+00:00",
+  "total_features": 4371,
   "features": [
     {
       "type": "Feature",
@@ -96141,6 +96141,28 @@
         "confidence": 0.997,
         "peak_t39_K": 291.3,
         "rate_of_rise_K_5min": -3.87
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.665,
+          36.7563
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261109_1110_01",
+        "timestamp": "2026-11-09T11:10:12.309000",
+        "regime": "DAY",
+        "classification": "NASCENT_IGNITION_CRITICAL",
+        "directive": "IMMEDIATE EVACUATION & AIR TANKER DISPATCH",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.981,
+        "peak_t39_K": 286.2,
+        "rate_of_rise_K_5min": 5.26
       }
     }
   ]
