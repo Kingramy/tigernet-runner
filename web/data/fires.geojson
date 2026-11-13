@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-13T21:16:24.694227+00:00",
-  "total_features": 13152,
+  "generated_at": "2026-11-13T21:21:15.818896+00:00",
+  "total_features": 13155,
   "features": [
     {
       "type": "Feature",
@@ -289345,6 +289345,72 @@
         "confidence": 0.961,
         "peak_t39_K": 287.4,
         "rate_of_rise_K_5min": 0.13
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.308,
+          34.7437
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261113_2115_01",
+        "timestamp": "2026-11-13T21:15:08.403000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 24.9,
+        "pixel_count": 2,
+        "confidence": 0.956,
+        "peak_t39_K": 285.8,
+        "rate_of_rise_K_5min": 0.2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.232,
+          34.2771
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261113_2115_02",
+        "timestamp": "2026-11-13T21:15:08.403000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 25.0,
+        "pixel_count": 2,
+        "confidence": 0.973,
+        "peak_t39_K": 287.1,
+        "rate_of_rise_K_5min": -0.13
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.253,
+          34.1896
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261113_2115_03",
+        "timestamp": "2026-11-13T21:15:08.403000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 12.5,
+        "pixel_count": 1,
+        "confidence": 0.973,
+        "peak_t39_K": 286.5,
+        "rate_of_rise_K_5min": -0.04
       }
     }
   ]
