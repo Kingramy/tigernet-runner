@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-15T23:21:33.085328+00:00",
-  "total_features": 14476,
+  "generated_at": "2026-11-15T23:25:40.664119+00:00",
+  "total_features": 14479,
   "features": [
     {
       "type": "Feature",
@@ -318473,6 +318473,72 @@
         "confidence": 0.984,
         "peak_t39_K": 285.9,
         "rate_of_rise_K_5min": 0.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.727,
+          37.3104
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261115_2320_01",
+        "timestamp": "2026-11-15T23:20:09.227000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.995,
+        "peak_t39_K": 285.1,
+        "rate_of_rise_K_5min": 0.3
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.3277,
+          34.2058
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261115_2320_02",
+        "timestamp": "2026-11-15T23:20:09.227000",
+        "regime": "NIGHT",
+        "classification": "MAJOR_EXPANDING_WILDFIRE",
+        "directive": "REGIONAL PERIMETER CONTAINMENT",
+        "estimated_area_km2": 112.7,
+        "pixel_count": 9,
+        "confidence": 0.982,
+        "peak_t39_K": 286.2,
+        "rate_of_rise_K_5min": 0.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.807,
+          34.124
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261115_2320_03",
+        "timestamp": "2026-11-15T23:20:09.227000",
+        "regime": "NIGHT",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 50.1,
+        "pixel_count": 4,
+        "confidence": 0.985,
+        "peak_t39_K": 286.2,
+        "rate_of_rise_K_5min": 0.56
       }
     }
   ]
