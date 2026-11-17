@@ -1,74 +1,8 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-17T08:21:01.426611+00:00",
-  "total_features": 14057,
+  "generated_at": "2026-11-17T10:33:44.255160+00:00",
+  "total_features": 14054,
   "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          7.681,
-          36.7563
-        ]
-      },
-      "properties": {
-        "incident_id": "INC_20261107_1010_01",
-        "timestamp": "2026-11-07T10:10:11.043000",
-        "regime": "DAY",
-        "classification": "ACTIVE_FLAMING_FRONT",
-        "directive": "GROUND UNIT INTERVENTION",
-        "estimated_area_km2": 12.1,
-        "pixel_count": 1,
-        "confidence": 0.967,
-        "peak_t39_K": 300.6,
-        "rate_of_rise_K_5min": 0.06
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          7.681,
-          36.7563
-        ]
-      },
-      "properties": {
-        "incident_id": "INC_20261107_1015_01",
-        "timestamp": "2026-11-07T10:15:10.746000",
-        "regime": "DAY",
-        "classification": "ACTIVE_FLAMING_FRONT",
-        "directive": "GROUND UNIT INTERVENTION",
-        "estimated_area_km2": 12.1,
-        "pixel_count": 1,
-        "confidence": 0.982,
-        "peak_t39_K": 300.5,
-        "rate_of_rise_K_5min": 0.41
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          7.681,
-          36.7563
-        ]
-      },
-      "properties": {
-        "incident_id": "INC_20261107_1020_01",
-        "timestamp": "2026-11-07T10:20:10.450000",
-        "regime": "DAY",
-        "classification": "ACTIVE_FLAMING_FRONT",
-        "directive": "GROUND UNIT INTERVENTION",
-        "estimated_area_km2": 12.1,
-        "pixel_count": 1,
-        "confidence": 0.988,
-        "peak_t39_K": 300.1,
-        "rate_of_rise_K_5min": 0.67
-      }
-    },
     {
       "type": "Feature",
       "geometry": {
