@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-19T11:56:12.145895+00:00",
-  "total_features": 13653,
+  "generated_at": "2026-11-19T12:01:16.826731+00:00",
+  "total_features": 13656,
   "features": [
     {
       "type": "Feature",
@@ -300367,6 +300367,72 @@
         "confidence": 0.983,
         "peak_t39_K": 304.7,
         "rate_of_rise_K_5min": -0.04
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.321,
+          36.7563
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261119_1155_01",
+        "timestamp": "2026-11-19T11:55:10.468000",
+        "regime": "DAY",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.999,
+        "peak_t39_K": 296.5,
+        "rate_of_rise_K_5min": 1.13
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.867,
+          36.7563
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261119_1155_02",
+        "timestamp": "2026-11-19T11:55:10.468000",
+        "regime": "DAY",
+        "classification": "NASCENT_IGNITION_CRITICAL",
+        "directive": "IMMEDIATE EVACUATION & AIR TANKER DISPATCH",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.744,
+        "peak_t39_K": 291.6,
+        "rate_of_rise_K_5min": 2.65
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.681,
+          36.7563
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261119_1155_03",
+        "timestamp": "2026-11-19T11:55:10.468000",
+        "regime": "DAY",
+        "classification": "ACTIVE_FLAMING_FRONT",
+        "directive": "GROUND UNIT INTERVENTION",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.997,
+        "peak_t39_K": 304.8,
+        "rate_of_rise_K_5min": 0.44
       }
     }
   ]
