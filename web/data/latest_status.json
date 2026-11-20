@@ -1,8 +1,8 @@
 {
   "status": "OPERATIONAL",
-  "last_updated_utc": "2026-11-20T18:33:01.566704+00:00",
-  "latest_sensing_time": "2026-11-20T18:25:11.953000",
-  "total_historical_incidents": 12214,
+  "last_updated_utc": "2026-11-20T18:37:09.873162+00:00",
+  "latest_sensing_time": "2026-11-20T18:30:13.480000",
+  "total_historical_incidents": 12183,
   "total_nascent_alerts": 372,
   "active_regime": "NIGHT",
   "industrial_sites_monitored": 17,
