@@ -1,52 +1,8 @@
 {
   "type": "FeatureCollection",
-  "generated_at": "2026-11-23T11:27:22.223398+00:00",
-  "total_features": 7913,
+  "generated_at": "2026-11-23T11:32:07.667253+00:00",
+  "total_features": 7912,
   "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          7.618,
-          36.8729
-        ]
-      },
-      "properties": {
-        "incident_id": "INC_20261113_1120_01",
-        "timestamp": "2026-11-13T11:20:10.327000",
-        "regime": "DAY",
-        "classification": "ACTIVE_FLAMING_FRONT",
-        "directive": "GROUND UNIT INTERVENTION",
-        "estimated_area_km2": 24.2,
-        "pixel_count": 2,
-        "confidence": 0.989,
-        "peak_t39_K": 303.7,
-        "rate_of_rise_K_5min": -0.16
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          3.103,
-          36.6979
-        ]
-      },
-      "properties": {
-        "incident_id": "INC_20261113_1120_02",
-        "timestamp": "2026-11-13T11:20:10.327000",
-        "regime": "DAY",
-        "classification": "NASCENT_IGNITION_CRITICAL",
-        "directive": "IMMEDIATE EVACUATION & AIR TANKER DISPATCH",
-        "estimated_area_km2": 12.1,
-        "pixel_count": 1,
-        "confidence": 0.966,
-        "peak_t39_K": 299.5,
-        "rate_of_rise_K_5min": 1.58
-      }
-    },
     {
       "type": "Feature",
       "geometry": {
@@ -174087,6 +174043,28 @@
         "confidence": 0.707,
         "peak_t39_K": 299.1,
         "rate_of_rise_K_5min": 1.73
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.681,
+          36.7563
+        ]
+      },
+      "properties": {
+        "incident_id": "INC_20261123_1125_01",
+        "timestamp": "2026-11-23T11:25:11.313000",
+        "regime": "DAY",
+        "classification": "NASCENT_IGNITION_CRITICAL",
+        "directive": "IMMEDIATE EVACUATION & AIR TANKER DISPATCH",
+        "estimated_area_km2": 12.1,
+        "pixel_count": 1,
+        "confidence": 0.74,
+        "peak_t39_K": 298.9,
+        "rate_of_rise_K_5min": 2.96
       }
     }
   ]
