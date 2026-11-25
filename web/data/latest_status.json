@@ -1,7 +1,7 @@
 {
   "status": "OPERATIONAL",
-  "last_updated_utc": "2026-11-25T10:58:19.302075+00:00",
-  "latest_sensing_time": "2026-11-25T10:50:09.715000",
+  "last_updated_utc": "2026-11-25T11:02:26.449951+00:00",
+  "latest_sensing_time": "2026-11-25T10:55:09.434000",
   "total_historical_incidents": 7708,
   "total_nascent_alerts": 139,
   "active_regime": "DAY",
